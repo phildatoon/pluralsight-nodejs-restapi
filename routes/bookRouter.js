@@ -1,30 +1,13 @@
 const express = require('express');
+const bookController = require('../controllers/bookController');
 
 function routes(Book) {
   const bookRouter = express.Router();
+  const controller = bookController(Book);
 
   bookRouter.route('/books')
-    .post((req, res) => {
-      const book = new Book(req.body);
-
-      book.save();
-      return res.status(201).json(book);
-    })
-    .get((req, res) => {
-      // ignore all unwanted query parameters and obtain values only for those needed
-      const query = {};
-      if (req.query.genre) {
-        query.genre = req.query.genre;
-      }
-
-      // find books from DB
-      Book.find(query, (err, books) => {
-        if (err) {
-          return res.send(err);
-        }
-        return res.json(books);
-      });
-    });
+    .post(controller.post)
+    .get(controller.get);
 
   // middleware (request interceptor)
   bookRouter.use('/books/:bookId', (req, res, next) => {
